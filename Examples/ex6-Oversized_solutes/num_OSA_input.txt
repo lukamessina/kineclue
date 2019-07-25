@@ -1,0 +1,39 @@
+# Main input file for migration of oversized solute atoms (OSA) in FCC crystals by the half-vacancy mechanism.
+# In order to model the OSA mechanism correctly, the substitutional 1nn configuration (not relaxed) must be forbidden by setting its prefactor to zero, either in the configurations.txt file, or in the interaction file. In the latter case, the file should contain the following:
+	& C o 2 1.32            # intermediate
+ 		vacancy  0.25 0.25 0.00
+ 		osa      0.25 0.25 0.00
+	& C o 2 0.0 0.0         # 1nn to remove (first 0.0 is the prefactor, second 0.0 the binding energy)
+ 		vacancy  0.0 0.0 0.0
+ 		osa      0.0 0.5 0.5
+# (Ref. J. L. Bocquet et al., Phys. Rev. B, 95 (2017), 214108–11.)
+
+# Temperature interval for calculations (min, max, step)
+& TEMPERATURES 1100 1600 10
+
+# Prefactors (optional) and saddle energies (mandatory) for each reference jump mechanism defined in the main input (jump labels must match)
+# For sol_2nn, sol_3nn, sol_5nn, initial and final configurations are not symmetrically equivalent. 
+# By default, migration barriers are computed using the KRA approximation (Eq. 24 of the reference KineCLuE paper) 
+# For instance in sol_2nn: actual migration barrier w(1nn->2nn) is 2.10 eV, Eb(1nn) = 1.32 eV, Eb(2nn) = -0.09 eV (repulsive). 
+# The actual saddle-point energy with respect to Eb=0 is then E_sp = E_mig(1nn->2nn) - Eb(1nn) = 0.78 eV. 
+# In order to obtain this saddle-point energy, one needs to reverse eq. 24 to find Q_alfa = E_sp + ( Eb(1nn) + Eb(2nn) ) / 2 = 0.78 + ( 1.32 - 0.09 ) / 2 = 1.395 eV.
+
+& KRAACTIVATION 
+ vac_jump		10.000   1.34
+ sol_1nn		10.000   1.15
+ sol_2nn		10.000   1.395	
+ sol_3nn		10.000   1.13
+ sol_5nn		10.000   1.095
+
+# (Optional) Lattice parameter
+& LATTPARAM 2.87
+
+# Output options
+& OUTOPTIONS CF DR # print additional output files with drag ratios (DR) and correlation factors (CF)
+
+# Interaction model file containing the binding and saddle energies. Allows to remove some configuration and specify automatically saddle-point energies
+& INTERACTIONMODEL inter_osa_bcc.txt
+
+
+
+

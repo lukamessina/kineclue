@@ -1,0 +1,39 @@
+This input file describes a multiple mechanism combining the hop of a dumbbell and
+a direct interstitial occupying a hexagonal interstitial site of the diamond lattice.
+(cf R. Chen and S.T. Dunham, Phys. Rev. B 83, (2011) 134124 for a detailed description of the
+jump mechanism).
+The dumbbell is oriented along the <110> direction.
+A single defect is considered here. It is occupying either a dumbbell position or
+a hexagonal interstitial site. The solute atom is seating on a diamond lattice site or with
+the defect  (leading to an occupation number equal to -1).
+
+& CRYSTAL diamond
++0.0 +0.5 +0.5
++0.5 +0.0 +0.5
++0.5 +0.5 +0.0
+& BASIS o 2
+0 0.0 0.0 0.0
+0 2/8 2/8 2/8
+& KINETICRANGE 4.0 0.6
+& CPG o 1 0 0
+& UNIQUEPOS 3
+o 0    0   0
+o 3/8 5/8 3/8
+o  d   d  0.
+& SPECIES 2
+1  0   1   1  defect
+1  1  -1  -1  solute
+& BULKSPECIES 1
+& JUMPMECH
+%% 2 dumbbell_jump
+o 1 3/8 5/8 3/8 > 1 1/4+d 1/4+d 1/4
+o 0 1/4 1/4 1/4 > 0 3/8 5/8 3/8
+%% 2 mixed_dumbbellA_jump
+o 1 1/4+d 1/4+d 1/4 > 1 3/8 5/8 3/8
+o 2 1/4-d 1/4-d 1/4 > 2 1/4 1/4 1/4
+%% 2 mixed_dumbbellB_jump
+o 1 1/4-d 1/4-d 1/4 > 1 3/8 5/8 3/8
+o 2 1/4+d 1/4+d 1/4 > 2 3/8 5/8 3/8
+& INICONF 2 # (optional) final result is independent of the initial configuration
+o 1 0.25+d 0.25+d 0.25
+o 2 0.25-d 0.25-d 0.25

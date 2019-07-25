@@ -1,0 +1,20 @@
+This example shows the vacancy diffusion in a non-Bravais 3D crystal, the hexagonal-compact or HCP crystal.
+The main difference with example 1 is that we are using the keyword BASIS to define non-Bravais crystals.
+
+& CRYSTAL hcp
++1.0 +0.0 +0.0
+-0.5 sqrt(3)/2 +0.0
++0.0 +0.0 sqrt(8/3)
+& BASIS s 2 # defines the number of basis atoms that are used to find valid symmetry operations for the system.
+0 1/3 2/3 1/4 # the first number is a "type" of basis atom. Valid symmetry operations bring all basis atoms of a given type on atoms of the same type.
+0 2/3 1/3 3/4
+& UNIQUEPOS 1
+s 1/3 2/3 1/4
+& SPECIES 1 # for this exmaple we define only one species, a vacancy on substitutional sites
+1 1 vacancy
+& JUMPMECH # there are two jump types in the HCP lattice: basal and pyramidal
+%% 1 pyramidal_jump
+s 1 1/3 2/3 1/4 > 1 2/3 1/3 3/4
+%% 1 basal_jump
+s 1 1/3 2/3 1/4 > 1 4/3 2/3 1/4
+& KINETICRANGE 1 # the value is not important for monomers (clusters with only one component)

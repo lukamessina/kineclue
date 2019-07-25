@@ -1,0 +1,21 @@
+This basic input shows the keywords necessary to perform a calculation with the analytical part of KineCluE.
+As an example, we compute transport coefficients for a vacancy-substitutional solute pair in a face-centered cubic system.
+Refer to the User Manual for comprehensive explanations about all these keywords.
+
+& CRYSTAL fcc # creation of the crystal with n vector of n components, n being the dimensionality of the system (here n=3).
+0.5 0.5 0.0
+0.5 0.0 0.5
+0.0 0.5 0.5
+& KINETICRANGE 2 # the first number is the volume inside of which all kinetic trajectories are accounted for.
+& UNIQUEPOS 1 # describes the sites in the crystal that the atoms and defect will occupy.
+s 0 0 0 # here we only keep substitutional sites.
+& SPECIES 2 # describes the species (solutes and/or defects). There are two species in this example.
+1 1 vacancy # first number is the number of component of that species, then a list of integer to indicate sublattice occupancy, then the name of the species
+1 1 solute
+& JUMPMECH # defines jump mechanisms separated by %% symbols. Each jump is represented by a set of constraints that must be met simultaneously to perform the jump.
+%% 2 vacancy_jump
+s 1 0 0 0 > 1 1 0 0 # vacancy jump to a first nearest-neighbor site
+s 0 1 0 0 > 0 0 0 0 # making sure that the destination site is not occupied
+%% 2 solute_jump
+s 1 0 0 0 > 1 1 0 0
+s 2 1 0 0 > 2 0 0 0 # making sure that the destination site is occupied by the solute to perform the vacancy-solute exchange

@@ -1,0 +1,12 @@
+# In order to model the OSA mechanism correctly, 
+#the substitutional 1nn configuration (not relaxed) must be forbidden 
+#by setting its prefactor to zero in the interaction file. 
+# This can also be done manually in the configuration.txt file
+
+& C o 2 1.32            # intermediate
+vacancy  0.25 0.25 0.00
+osa      0.25 0.25 0.00
+
+& C o 2 0.0 0.0         # 1nn to remove (first 0.0 is the prefactor, second 0.0 the binding energy)
+vacancy  0.0 0.0 0.0
+osa      0.0 0.5 0.5
