@@ -1,0 +1,9 @@
+& TEMPERATURES 300 900 300
+& KRAACTIVATION
+int_jump 0.5
+int_jumpB 0.4
+int_nojumpB 0.45
+& RANDOM -0.1 0.2 # (optional) assigns random binding energy values values to each configuration
+
+
+

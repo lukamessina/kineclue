@@ -1,0 +1,7 @@
+Minimal input required to run the numerical part of the code. 
+Comprehensive information is given in the user manual.
+
+& TEMPERATURES 300 1000 100 # temperatures at which transport coefficients are computed (min, max, step)
+& KRAACTIVATION # activation energy for each jump mechanism defined in the main input (mandatory)
+pyramidal_jump 0.5
+basal_jump 0.4

@@ -1,0 +1,35 @@
+# Num input file for migration of interstitial atoms (carbon) on octahedral positions in bcc crystal under shear strain, to compute elastodiffusion coefficient d44 = d(L_12)/d(eps_12), using a very small numerical strain.
+# Derivative must be computed manually by taking values at eps = 0 and eps != 0
+# (Refs. R.G. Veiga, et al., Acta Mater. 59 (2011), 6963–6974, and D.R. Trinkle, Philos. Mag. 96 (2016), 2714–2735.)
+
+#  Directory for output results
+& DIRECTORY cwd
+
+# Temperature interval for calculations (min, max, step)
+& TEMPERATURES 400 500 100			
+
+# Numerical strain interval (min, max, step)
+& NUMSTRAIN -0.00001 0.00001 0.000002		# Use a very small value for elastodiffusion derivative. Here eps = 1e-6 gives sufficient accuracy.
+
+# Prefactors, saddle energy, and elastic dipoles (all in eV) for each reference jump mechanism defined in the main input (jump labels must match)
+# In this case, migration energy of C interstitials in pure Fe.
+# In strain calculations, strain can produce extra jump mechanisms due to broken symmetry. To be checked by looking at the automatically written input_main_strained.txt file, and including all found jump mechanisms here under, applying as well the proper symmetry operation to the elastic dipole matrix.
+& KRAACTIVATION  # in this case, two non-equivalent octahedral to octahedral jumps have been found (along 'y' and along 'z')
+octa_tetra_octa    10 0.816  o  6.66 0.00 0.00 0.00 4.87 0.00 0.00 0.00 6.66 # elastic dipole: [P_11, P_12, P_13, P_21, P_22, P_23, P_31, P_32, P_33]
+octa_tetra_octa_2  10 0.816  o  6.66 0.00 0.00 0.00 6.66 0.00 0.00 0.00 4.87 # elastic dipole for this jump is obtained by applying -90 degree rotation along x (rotation to go from 'y' to 'z')
+
+# (Optional) Lattice parameter
+& LATTPARAM 2.8553
+
+# (Optional) Initial label for output files
+& OUTPUT fec_d12
+
+# Output options
+& OUTOPTIONS ND	# ND prints diffusion results in all 3 directions, if NORMAL keyword was used in the main calculation (necessary for shear strain to catch anisotropic diffusion)
+
+# Interaction model file containing the binding and saddle energies as well as elastic dipoles for jumps not already defined with the KRAACTIVATION keyword
+& INTERACTIONMODEL inter_feC_veiga.txt	# (can be found in the same directory as this input file) 
+
+
+
+

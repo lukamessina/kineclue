@@ -1,0 +1,62 @@
+# Main input file for migration of a <110> dumbbell-solute pair in BCC crystals, including several migration mechanisms (rotation-translation, pure translation, onsite rotation). The last two mechanisms can be removed if user wants to include rotation-translation jumps only. 
+# (Refs. V. Barbe et al., Philos. Mag. 87 (2007), 1649-1669; L. Messina et al., Multiscale Modeling of Atomic Transport Phenomena in Ferritic Steels, PhD Thesis (2015), KTH Royal Institute of Technology, Sweden)
+
+# Kinetic and thermodynamic range for cluster interactions. 
+& KINETICRANGE 4 0.87				# KiRa = 4 lattice parameters, ThRa = 0.87 lattice parameters (1nn distance)
+
+# Crystal name and primitive vectors (one vector per line)
+& CRYSTAL bcc
+ 0.5 0.5 -0.5
+ 0.5 -0.5 0.5
+ -0.5 0.5 0.5
+
+# Direction of the chemical potential gradient, defining the main diffusion direction. A good choice of CPG direction can speed up the calculation.
+& CPG o 1 0 0						# 'x' direction
+
+# Sublattices that can be occupied by cluster components
+# The dumbbell needs a special sublattice, defined by the substitutional site of its center plus its orientation with the help of the 'd' symbol, corresponding to the small displacement (offset) of one of the dumbbell atoms from the substitutional site. To describe the sublattice, only one of the two dumbbell atoms is needed (the other position is found by symmetry).    
+# To define the dumbbell positions in UNIQUEPOS and JUMPMECH with the 'd' symbol, the most common math operations can be used (+, -, *, /, sqrt(), ** (power)  )
+& UNIQUEPOS 2
+ o  0.0      0.0      0.0						# substitutional sites (actual BCC positions)
+ o  0.0+d  0.0+d   0.0						# <110> dumbbell, given by center position + orientation ( [0, 0, 0] + [d, d, 0] )
+
+# Species contained in the cluster (indicate amount of species, not considering identical components, and sublattice occupation permissions) 
+& SPECIES 2
+ 1  0 1  dumbbell					# 1 dumbbell species, that can occupy only the dumbbell sublattice
+ 1  1 -1 solute						# 1 solute species, that can occupy either a substitutional site, or the dumbbell sublattice to form a mixed dumbbell. But in the latter case, it can be there only when sharing the site with the dumbbell species (negative permission).
+
+# For dumbbell calculations, it is necessary to use the BULKSPECIES keyword, to let the code know that a pure dumbbell with given coordinates (e.g. [d, d, 0]) is identical to a dumbbell with opposite coordinates (e.g. [-d, -d, 0]), so it must not be counted twice. When not using this keyword, a special definition of the jump mechanisms is necessary, and the computed partition function is wrong. See user guide for more information. 
+& BULKSPECIES 1					# The special symmetry rule applies to species '1' (the dumbbell) 
+
+# Definition of jump mechanisms, by initial and final position of all atoms defining the jump (use species 0 to indicate bulk atoms, i.e. sites that should not be occupied by defects or solutes)
+# A pure dumbbell is marked by giving the coordinates of either one of the two dumbbell atoms. A mixed dumbbell is described by two species: the dumbbell in the position of the bulk atom (e.g. [d, d, 0]), and the solute in the opposite position (e.g. [-d, -d, 0]). 
+# Note that the same dumbbell site (e.g. [d,d,0]) cannot be occupied by a dumbbell and a solute at the same time. 
+# A solute-solute dumbbell is described by two solute species explicitly occupying [d,d,0] and [-d,-d,0] 
+# Do not put bulk atoms (species 0) in a pure dumbbell, because by default a dumbbell species contains only bulk atoms unless one or more solutes are on that site. Bulk atoms can be only on the substitutional lattice.
+& JUMPMECH
+# Jump mechanisms for pure dumbbell
+%% 2 dumbbell_rot_transl				# Rotation-translation of a pure dumbbell (2 constraints)
+ o  1  d   d   0.0  >  1  0.5 0.5-d 0.5-d		# <110> dumbbell moving from [0,0,0] to 1nn [0.5,0.5,0.5], changing orientation to <011>
+ o  0  0.5 0.5 0.5  >  0  0.0 0.0   0.0		# One bulk atom must be in 1nn [0.5, 0.5, 0.5] and move to [0, 0, 0]  
+%% 1 dumbbell_onsite_rot				# Onsite rotation of a pure dumbbell (1 constraint)
+ o  1  d    d  0.0  >  1  0.0  d   d			# <110> dumbbell rotating to <011> orientation without moving
+%% 2 dumbbell_transl				# Translation of a pure dumbbell (2 constraints)
+ o  1  d   d   0.0  >  1  0.5-d 0.5-d 0.5		# <110> dumbbell moving from [0,0,0] to 1nn [0.5, 0.5, 0.5], without changing orientation
+ o  0  0.5 0.5 0.5  >  0  0.0 0.0   0.0		# One bulk atom must be in 1nn [0.5, 0.5, 0.5] and move to [0, 0, 0]
+# Jump mechanisms for mixed dumbbell (MD). Make sure to carefully describe the MD orientation: for instance, in an MD rotation-translation from <110> to <011>, the actual final orientation is <0,-1,-1> because the solute goes from the positive dumbbell coordinates to the negative ones.   
+%% 2 mixed_dumbbell_rot_transl		# Rotation-translation of a mixed dumbbell (2 constraints) from [0,0,0] to [0.5,0.5,0.5] 
+ o  2  d   d   0.0  >  2  0.5 0.5-d 0.5-d		# Solute moves from [0,0,0] to [0.5, 0.5, 0.5] staying in the mixed dumbbell configuration, changing orientation to <0,-1,-1>
+ o  1  -d  -d  0.0  >  1  0.5 0.5+d 0.5+d		# Dumbbell species migrates with the solute and occupies the other dumbbell site
+%% 2 mixed_dumbbell_onsite_rot		# Onsite rotation of a mixed dumbbell (2 constraints) from <110> to <011> without moving
+ o  2  d   d   0.0  >  2  0.0  d  d			
+ o  1  -d  -d  0.0  >  1  0.0  -d -d
+%% 2 mixed_dumbbell_transl			# Translation of a mixed dumbbell (2 constraints) - same as rotation-translation, but without orientation change
+ o  2  d   d   0.0  >  2  0.5-d 0.5-d 0.5
+ o  1  -d  -d  0.0  >  1  0.5+d 0.5+d 0.5
+%% 2 mixed_dumbbell_diss			# Dissociation of a mixed dumbbell with a rotation-translation jump (2 constraints); reverse association jump is added automatically
+ o  1  d   d   0.0  >  1  0.5 0.5-d 0.5-d		# The dumbbell jumps normally from [0, 0, 0] to the 1nn [0.5, 0.5, 0.5]
+ o  2  -d  -d  0.0  >  2  0.0 0.0   0.0		# The solute moves from one of the dumbbell positions to the corresponding substitutional site 
+%% 2 mixed_dumbbell_diss_transl		# Dissociation of a mixed dumbbell with a translation jump (2 constraints); reverse association jump is added automatically
+ o  1  d   d   0.0  >  1  0.5-d 0.5-d 0.5	
+ o  2  -d  -d  0.0  >  2  0.0 0.0   0.0		 
+

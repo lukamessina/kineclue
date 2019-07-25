@@ -1,0 +1,30 @@
+# This examples contains a vacancy and substitutional solute in a sheared diamond lattice,
+# with the CPG perpendicular to the shearing plane. Because some symmetries are broken, site interactions 
+# are required to correctly compute transport coefficients
+
+& CRYSTAL diamond
++0.0 +0.5 +0.5
++0.5 +0.0 +0.5
++0.5 +0.5 +0.0
+& STRAIN o
+0.0 e/2 0.0
+e/2 0.0 0.0
+0.0 0.0 0.0
+& BASIS o 2
+0 0.0 0.0 0.0
+0 2/8 2/8 2/8
+& KINETICRANGE 2.00 0.45
+& CPG o 0 0 1
+& UNIQUEPOS 1
+o 0    0   0
+& SPECIES 2
+1 1 vac
+1 1 sol
+& JUMPMECH
+%% 2 vacjp
+o 1 0 0 0 > 1 1/4 1/4 1/4
+o 0 1/4 1/4 1/4 > 0 0 0 0
+%% 2 soljp
+o 1 0 0 0 > 1 1/4 1/4 1/4
+o 2 1/4 1/4 1/4 > 2 0 0 0
+& RUNNUM num_site_input.txt

@@ -1,0 +1,4 @@
+# C migration in Fe, according to Veiga et al., Acta Mater. 59 (2011)
+
+& C o 1 1.0 0.0  8.03 0.00 0.00 0.00 3.40 0.00 0.00 0.00 3.40
+carbon 0.5 0.0 0.0

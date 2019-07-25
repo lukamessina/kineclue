@@ -1,0 +1,87 @@
+# Main input file for migration of oversized solute atoms (OSA) in FCC crystals by the half-vacancy mechanism.
+# (Ref. J. L. Bocquet et al., Phys. Rev. B, 95 (2017), 214108–11.)
+
+# Kinetic and thermodynamic range for cluster interactions. Definition of ThRa (ThRa < KiRa) is optional: it allows to reduce the amount of configurations and jump frequencies, while maintaining effective kinetic interactions up to KiRa. 
+# Advisable to use a ThRa large enough to include the first shell outside the targeted thermodynamic interaction shell. All jumps leading to outside ThRa are grouped in the same jump frequency, regardless of the final position (for instance, if ThRa = 1nn, jumps w(1nn->2nn), w(1nn-3nn), and w(1nn-4nn) are grouped in the same jump frequency).  
+& KINETICRANGE 4 3  				# KiRa = 4 lattice parameters, ThRa = 3 lattice parameters
+
+# Crystal name and primitive vectors (one vector per line)
+
+& CRYSTAL fcc
+
+ 0.5 0.5 0.0
+
+ 0.5 0.0 0.5
+
+ 0.0 0.5 0.5
+
+# Direction of the chemical potential gradient, defining the main diffusion direction (a good CPG choice can increase the computational efficiency)
+
+& CPG o 1 0 0						# 'x' direction
+
+# Sublattices that can be occupied by cluster components
+# Since OSA relax to the middle of the empty space when next to a vacancy, 
+# define a sublattice marking the middle position between two nearest-neighbor sites. 
+# This sublattice can be occupied only when vacancy and OSA are 1nn: 
+# this is taken care of by the permissions in SPECIES,
+# and by forbidding (0 prefactor) the substitutional 1nn configuration in the numerical input.
+
+& UNIQUEPOS 2
+
+ o  0.0 0.0 0.0			# substitutional sites (actual FCC positions)
+
+ o  0.25 0.25 0.0			# middle position between two nearest-neighbor sites
+ 
+# Species contained in the cluster 
+# Using negative permissions to indicate that occupation of a given sublattice is allowed only when sharing the site with another species.
+# In this case, the vacancy and the OSA can occupy the middle position (sublattice n.2) only when they are both occupying the same site 
+# (after calculation, you can check the found equilibrium configurations in configuration.txt file).
+
+& SPECIES 2
+
+ 1   1 -2  vacancy		# one vacancy, allowed always on first sublattice, and on second sublattice only when sharing the site with species n.2
+
+ 1   1 -1  osa			# one OSA atom, allowed always on first sublattice, and on second sublattice only when sharing the site with species n.1
+
+# Definition of jump mechanisms, by initial and final position of all atoms defining the jump (use species n.0 to indicate bulk atoms)
+
+& JUMPMECH			# before each jump mechanism label, indicate number of constraints to be read (i.e., number of following lines)
+
+ %% 2 vac_jump					# Vacancy exchange with 1nn matrix atom  
+
+  o  1  0.0 0.0 0.0  >  1  0.5 0.5 0.0		# species 1 (vacancy)
+
+  o  0  0.5 0.5 0.0  >  0  0.0 0.0 0.0		# species 0 (bulk)
+
+ %% 2 sol_1nn						# Non-dissociative jump where both components move to 1nn site together 
+
+  o  2  0.25 0.0 0.25  >  2  0.0 0.25 0.25	# species 2 (OSA)
+
+  o  1  0.25 0.0 0.25  >  1  0.0 0.25 0.25
+
+ %% 2 sol_2nn						# Dissociation of OSA-vacancy complex where one of the half-vacancies move to a 2nn site, and OSA relaxes back to the substitutional site
+
+  o  2  0.25 0.0 0.25  >  2  0.0 0.0 0.0
+
+  o  1  0.25 0.0 0.25  >  1  1.0 0.0 0.0
+
+ %% 2 sol_3nn						# Dissociation of OSA-vacancy complex where one of the half-vacancies move to a 3nn site, and OSA relaxes back to the substitutional site
+
+  o  2  0.25 0.0 0.25  >  2  0.0 0.0 0.0
+
+  o  1  0.25 0.0 0.25  >  1  0.5 0.5 1.0
+
+ %% 2 sol_5nn						# Dissociation of OSA-vacancy complex where one of the half-vacancies move to a 4nn site, and OSA relaxes back to the substitutional site
+
+  o  2  0.25 0.0 0.25  >  2  0.0 0.0 0.0
+
+  o  1  0.25 0.0 0.25  >  1  1.0 0.0 1.0
+
+
+# (Optional) Initial configuration for construction of configuration space 
+& INICONF 2			# Start from relaxed 1nn configuration where vacancy and OSA share the intermediate site
+
+ o  1  0.25 0.0 0.25
+
+ o  2  0.25 0.0 0.25
+

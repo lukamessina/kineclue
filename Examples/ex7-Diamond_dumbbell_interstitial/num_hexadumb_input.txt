@@ -1,0 +1,20 @@
+& TEMPERATURES 500 700 200
+& OUTPUT numout # (optional) prefix for numerical output files
+& UNITS m2/s # (optional) output units of cluster transport coefficients
+& PREFACTOR 1.E-12 # (optional) common prefactor for all jump frequencies
+& MOB # (optional) computation of cluster mobility in addition to cluster transport coefficients
+& OUTOPTIONS CF # (optional) automatic calculation of correlation factors
+& KRAACTIVATION
+dumbbell_jump   1.00 0.0
+mixed_dumbbellA_jump 1.00 0.0
+mixed_dumbbellB_jump 1.00 0.0
+
+
+
+
+
+
+
+
+
+

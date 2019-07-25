@@ -1,0 +1,22 @@
+Another simple example on a 2-dimensional square lattice where vacancies occupy substistutional sites and solutes occupy interstitial sites.
+We consider a cluster of 3 components (1 vacancy and 2 solutes)
+
+& CRYSTAL square # 2-D crystal. Note that all z-components must be set to 0 in UNIQUEPOS and JUMPMECH keywords
+1 0
+0 1
+& UNIQUEPOS 3 # we define two possible lattice sites that can be occupied by solutes and defects
+o 0 0 0 # substitutional sites
+o 0.5 0.5 0 # interstitial sites type 1
+o 0.5 0.0 0 # interstitial sites type 2
+& SPECIES 2
+2 0 1 1 solute # there are 2 solutes; they cannot occupy the first position (substitutional site) but can occupy the second and third positions (interstitial sites) 
+1 1 0 0 vacancy # there is 1 vacancy located on substituional sites only
+& KINETICRANGE 2 1 # second number is the range of thermodynamic interaction (reduces computational load)
+& JUMPMECH # we do not consider solute_vacancy exchanges in this example; each species diffuses on its own sublattice
+%% 2 solute_jump
+o 1 0.5 0.5 0.0 > 1 1.0 0.5 0.0
+o 0 1.0 0.5 0.0 > 0 0.5 0.5 0.0
+%% 2 vacancy_jump
+o 2 0.0 0.0 0.0 > 2 1.0 0.0 0.0
+o 0 1.0 0.0 0.0 > 0 0.0 0.0 0.0
+

@@ -1,0 +1,26 @@
+# Main input file for migration of a <110> dumbbell-solute pair in BCC crystals. 
+# (Refs. V. Barbe et al., Philos. Mag. 87 (2007), 1649-1669; L. Messina et al., Multiscale Modeling of Atomic Transport Phenomena in Ferritic Steels, PhD Thesis (2015), KTH Royal Institute of Technology, Sweden)
+
+# Temperature interval for calculations (min, max, step)
+& TEMPERATURES 400 500 100
+
+# Saddle energies for each reference jump mechanism defined in the main input (jump labels must match). 
+# Pay attention to reference jumps not having symmetric end states, i.e., where final configuration is different from initial configuration (in this example, the dissociation jumps). 
+# For these jumps, the activation energy Q^alpha is computed with the KRA formula (Eq. 24 in KineCluE paper). 
+# See more detailed instructions in file "num_OSA_input.txt" (ex6) and in the User Manual.
+& KRAACTIVATION
+ dumbbell_rot_transl			0.33 
+ dumbbell_onsite_rot			0.67
+ dumbbell_transl			0.80
+ mixed_dumbbell_rot_transl	0.25
+ mixed_dumbbell_onsite_rot	0.45
+ mixed_dumbbell_transl		0.80
+ mixed_dumbbell_diss		0.15		# non-symmetric jump
+ mixed_dumbbell_diss_transl	0.80		# non-symmetric jump
+
+
+
+
+
+
+

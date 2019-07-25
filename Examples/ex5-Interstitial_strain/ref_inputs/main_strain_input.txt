@@ -1,0 +1,51 @@
+# Main input file for migration of interstitial atoms (carbon) on octahedral positions in bcc crystal under shear strain, to compute elastodiffusion coefficient d44 = d(L_12)/d(eps_12).
+# L_12 is transport coefficient for diffusion along 'x', due to driving force along 'y' (and viceversa). eps_12 is an elementary shear strain.
+# In order to compute anisotropic diffusion terms such as L_12, use NORMAL keyword.
+# (Refs. R.G. Veiga, et al., Acta Mater. 59 (2011), 6963–6974, and D.R. Trinkle, Philos. Mag. 96 (2016), 2714–2735.)
+
+#  Directory for output results
+& DIRECTORY cwd	# cwd = current working directory (print output in the same folder as the input file, rewriting previously existing results) 
+
+# Kinetic range for cluster interactions
+& KINETICRANGE 1 # for monomers the kinetic range value does not matter but this keyword is still mandatory  
+
+# Crystal name and primitive vectors (one vector per line)
+& CRYSTAL bcc
+   +0.5 +0.5 -0.5     
+   +0.5 -0.5 +0.5
+   -0.5 +0.5 +0.5
+
+# Strain matrix in 'o' (orthonormal coordinates);
+# when including a non-null strain, new defects and jump mechanisms arising because of broken symmetry are written automatically in input_main_strained.txt  
+# note that this shear strain will not produce any saddle point energy or binding energy variation because the corresponding elastic dipoles in this example are diagonal.
+# change the strain to a tetragonal strain to observe the effect on migration barriers (e.g. e11=e, all other components=0)
+& STRAIN o	 # 'e' marks generic symbolic strain, whose numerical values are assigned in input_num 
+   0.0 0.5*e 0.0 # [ e11 e12 e13         This is an elementary shear strain in the x,y direction
+   0.5*e 0.0 0.0 #   e21 e22 e23		Most common math operation can be used: +, -, *, /, sqrt(), ** (power)
+   0.0   0.0 0.0 #   e31 e32 e33 ]
+
+# Sublattices that can be occupied by cluster components
+& UNIQUEPOS 1		     
+   o  0.5 0.0 0.0			# carbon sits in octahedral sites, defined here in orthonormal coordinates - symmetric equivalents are computed automatically
+
+# Direction of the chemical potential gradient, defining the main diffusion direction 
+& CPG o 1 0 0			# diffusion along the 'x' axis
+
+# (Optional) The NORMAL keyword defines a second diffusion direction (the third direction is defined as the cross product of CPG x NORMAL).
+# This is often necessary for strain calculations (and especially for shear strain), to compute non-null anisotropic terms.
+& NORMAL o 0 1 0		# second diffusion direction, along the 'y' axis -> third direction will be on 'z' axis 
+
+# Species contained in the cluster (indicate amount of species, not considering identical components, and sublattice occupation permissions) 
+& SPECIES 1			# carbon monomer
+ 1  1  carbon			# 1 carbon "cluster", that can occupy the first (and only) sublattice in UNIQUEPOS 
+
+# Definition of jump mechanisms, by initial and final position of all atoms defining the jump (use species n.0 to indicate bulk atoms)
+& JUMPMECH			
+ %% 1 octa_tetra_octa	# migration from octahedral to octahedral site ('1' marks that jump is described with 1 constraint (1 line))
+  o  1  0.5 0.0 0.0  >  1  0.5 0.5 0.0 # 'o' = orthonormal coordinates, '1' = species n.1, then initial coordinates > final coordinates 
+
+# (Optional) Start numerical calculation automatically after kineclue_main, if there is no need to input binding and saddle energies manually (for instance, if they are given in interaction file, or when doing BATCH calculations)
+& RUNNUM num_strain_input.txt   
+
+# (Optional) Produce a list of all symmetric equivalent configurations and jump mechanisms found with the valid symmetry operations for this crystal (useful to check their correct definition) 
+& PRINTSYMEQS o	# print symmetric equivalents in orthonormal coordinates
