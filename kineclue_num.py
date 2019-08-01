@@ -33,10 +33,10 @@ import copy
 import sys
 import logging
 import datetime
-import resource
 import warnings as warn
 from scipy import sparse
 from shutil import copyfile
+from psutil import Process
 from itertools import permutations, product
 from sympy.tensor.array import Array
 from kinepy import tol, change_base, flat_list, are_equal_arrays, evalinput, trans_and_check_unicity, rotate_matrix, \
@@ -52,6 +52,7 @@ def numrun(myinput: str, stream_log: bool=True):
 
     sys.setrecursionlimit(recursionlimit) # for Pickle, else it causes error to save important data
     start_time = tm.time() # Start measuring execution time
+    process_for_memory_tracking = Process(os.getpid())  # Save process id for memory usage tracking
     np.set_printoptions(precision=15)
 
     # Reading input file
@@ -64,7 +65,7 @@ def numrun(myinput: str, stream_log: bool=True):
     input_string = "\n".join([string.split(sep='#')[0] for string in input_string.split(sep='\n') if len(string.split(sep='#')[0]) > 0])
 
     # Definition of input_dataset dictionary
-    keywords = ['directory', 'precision', 'lattparam', 'temperatures', 'sensitivity', 'outoptions', 'output',
+    keywords = ['directory', 'precision', 'ndigits', 'lattparam', 'temperatures', 'sensitivity', 'outoptions', 'output',
                 'units', 'prefactor', 'mob', 'kraactivation', 'random', 'batch', 'interactionmodel', 'numstrain',
                 'kiraloop', 'batchcreate', 'randerror']
     input_dataset = {key: None for key in keywords}  # dictionary for reading user input
@@ -137,8 +138,27 @@ def numrun(myinput: str, stream_log: bool=True):
 
     # Defining working precision (if specified in input)
     if input_dataset.get('precision') is not None:
-        mp.mp.dps = int(float(input_dataset['precision'][0]))  # user
+        precision = int(float(input_dataset['precision'][0]))  # user
+        mp.mp.dps = precision
         logger.info("!! Numerical precision is set to {} digits".format(mp.mp.dps))
+    else:
+        precision = 15
+
+    # Defining number of digits for printing Lij outputs
+    if input_dataset.get('ndigits') is not None:
+        n_digits = int(float(input_dataset['ndigits'][0]))
+    else:
+        n_digits = 6  # default n.digits
+    # Check that n_digits <= precision
+    if n_digits <= precision:
+        logger.info("Will print results with {:d} decimal digits.".format(n_digits))
+    else:
+        n_digits = precision
+        logger.info("WARNING! Required number of decimal digits ({:d}) is larger than numerical precision ({:d}). Setting digits to {:d}. "
+                    "\nIf necessary, increase precision with PRECISION keyword.".format(n_digits, precision, precision))
+    # Prepare strings for correct n.digits
+    lij_digit_tag = '{{:^+{:d}.{:d}E}}'.format(n_digits+11, n_digits)
+    lij_title_digit_tag = '{{:^{:d}s}}'.format(n_digits+11)
 
     # defining T symbolic value (temperatures)
     T = sym.Symbol('T')
@@ -923,9 +943,9 @@ def numrun(myinput: str, stream_log: bool=True):
                             for a in range(0, len(spec_list)):
                                 for b in range(a+1, len(spec_list)):
                                     koutdr += 1
-                                    output.writelines(' {:^17s}'.format('{}) L_{}{}/L_{}{}'.format(koutdr, b, a, a, a)))
+                                    output.writelines(' {:s}'.format(lij_title_digit_tag).format('{}) L_{}{}/L_{}{}'.format(koutdr, b, a, a, a)))
                                     koutdr += 1
-                                    output.writelines(' {:^17s}'.format('{}) L_{}{}/L_{}{}'.format(koutdr, a, b, b, b)))
+                                    output.writelines(' {:s}'.format(lij_title_digit_tag).format('{}) L_{}{}/L_{}{}'.format(koutdr, a, b, b, b)))
                             output.writelines("\n")
                         else:
                             kout = 3  # printing header
@@ -933,7 +953,7 @@ def numrun(myinput: str, stream_log: bool=True):
                             for a in range(0, len(spec_list)):
                                 for b in range(a, len(spec_list)):
                                     kout += 1
-                                    output.writelines(' {:^17s}'.format('{}) {}_{}{}'.format(kout, out, a, b)))
+                                    output.writelines(' {:s}'.format(lij_title_digit_tag).format('{}) {}_{}{}'.format(kout, out, a, b)))
                             output.writelines("\n")
 
         # total number of configurations (partition function with no binding energy)
@@ -1037,11 +1057,11 @@ def numrun(myinput: str, stream_log: bool=True):
                                         with warn.catch_warnings(): # avoid printing "divide by zero" warning
                                             warn.simplefilter("ignore")
                                             if out == 'DR': #drag ratios
-                                                output.writelines((("{:^11.1f} {:^+15.5f} {:^16.5f}"+" {:^+17.6E}"*(koutdr-3))+"\n").format(temp, strain*100, 1000/temp, *flat_list([[np.divide(Lij[direction][b,a],Lij[direction][a,a]), np.divide(Lij[direction][a,b],Lij[direction][b,b])] for a in range(0, len(spec_list)) for b in range(a+1, len(spec_list))])))
+                                                output.writelines((("{:^11.1f} {:^+15.5f} {:^16.5f}"+" {:s}".format(lij_digit_tag)*(koutdr-3))+"\n").format(temp, strain*100, 1000/temp, *flat_list([[np.divide(Lij[direction][b,a],Lij[direction][a,a]), np.divide(Lij[direction][a,b],Lij[direction][b,b])] for a in range(0, len(spec_list)) for b in range(a+1, len(spec_list))])))
                                             elif out == 'CF': #correlation coefficient
-                                                output.writelines((("{:^11.1f} {:^+15.5f} {:^16.5f}"+" {:^17.6E}"*(kout-3))+"\n").format(temp, strain*100, 1000/temp, *[np.divide(Lij[direction][ a, b], float(JumpPrefnum(e, temp)*L0func(strain, Wnum)[direction][a][b]/zfuncnum)) for a in range(0, len(spec_list)) for b in range(a, len(spec_list))]))
+                                                output.writelines((("{:^11.1f} {:^+15.5f} {:^16.5f}"+" {:s}".format(lij_digit_tag)*(kout-3))+"\n").format(temp, strain*100, 1000/temp, *[np.divide(Lij[direction][ a, b], float(JumpPrefnum(e, temp)*L0func(strain, Wnum)[direction][a][b]/zfuncnum)) for a in range(0, len(spec_list)) for b in range(a, len(spec_list))]))
                                             elif out == 'UC': #uncorrelated coefficient
-                                                output.writelines((("{:^11.1f} {:^+15.5f} {:^16.5f}"+" {:^17.6E}"*(kout-3))+"\n").format(temp, strain*100, 1000/temp, *[float(JumpPrefnum(e, temp)*L0func(strain, Wnum)[direction][a][b]/zfuncnum) for a in range(0,len(spec_list)) for b in range(a,len(spec_list))]))
+                                                output.writelines((("{:^11.1f} {:^+15.5f} {:^16.5f}"+" {:s}".format(lij_digit_tag)*(kout-3))+"\n").format(temp, strain*100, 1000/temp, *[float(JumpPrefnum(e, temp)*L0func(strain, Wnum)[direction][a][b]/zfuncnum) for a in range(0,len(spec_list)) for b in range(a,len(spec_list))]))
 
                         if len(kiraloop) > 0:
                             with sym.evaluate(False):
@@ -1065,7 +1085,7 @@ def numrun(myinput: str, stream_log: bool=True):
                         if outopt['EX']:
                             for direction in range(0,ndir):
                                 with open(outputfile + '_' + str(direction) + 'EX.dat', 'a') as output:
-                                    output.writelines((("{:^11.1f} {:^+15.5f} {:^16.5f}"+" {:^+17.6E}"*(kout-3)) + "\n").format(temp, strain*100, 1000/temp, *[(a-Lij[direction][0,0]) for a in tofile[direction][k][7:-1]]))
+                                    output.writelines((("{:^11.1f} {:^+15.5f} {:^16.5f}"+" {:s}".format(lij_digit_tag)*(kout-3)) + "\n").format(temp, strain*100, 1000/temp, *[(a-Lij[direction][0,0]) for a in tofile[direction][k][7:-1]]))
                         # divide mobility coefficients by number of species
                         for direction in range(ndir):
                             for sp1 in range(len(spec_list)):
@@ -1087,19 +1107,19 @@ def numrun(myinput: str, stream_log: bool=True):
             with open(outputfile+'_'+str(direction)+'.dat', 'w') as output:
                 ncoeff = int(0.5*len(spec_list)*(len(spec_list)+1))
                 if mode_dict["mob"]:
-                    output.writelines(("#{:^10s} {:^15s} {:^16s} {:^17s} {:^10s}"+(" {:^17s}"*(5+ncoeff+len(alldissonum)))+"\n").format(
+                    output.writelines(("#{:^10s} {:^15s} {:^16s} {:^17s} {:^10s}"+(" {:s}".format(lij_title_digit_tag)*(5+ncoeff+len(alldissonum)))+"\n").format(
                         '1) T [K]', '2) Strain [%]', '3) 1000/T [/K]', '4) Z', '5) Z0', '6) Diss [/s]', '7) Lifetime [s]',
                         *[str(8+b+sum([(len(spec_list)-e) for e in range(1,a+1)]))+') L_'+str(a)+str(b) for a in range(0, len(spec_list)) for b in range(a, len(spec_list))],
                         str(ncoeff+8)+') M', str(ncoeff+9)+') Conv', str(ncoeff+10)+') MFP',
                         *[str(ncoeff+11+idx)+') D'+disso.replace('_','') for idx, disso in enumerate(alldissonum)]))
                 else:
-                    output.writelines(("#{:^10s} {:^15s} {:^16s} {:^17s} {:^10s}"+(" {:^17s}"*(3+ncoeff+len(alldissonum)))+"\n").format(
+                    output.writelines(("#{:^10s} {:^15s} {:^16s} {:^17s} {:^10s}"+(" {:s}".format(lij_title_digit_tag)*(3+ncoeff+len(alldissonum)))+"\n").format(
                         '1) T [K]', '2) Strain [%]', '3) 1000/T [/K]', '4) Z', '5) Z0', '6) Diss [/s]', '7) Lifetime [s]',
                         *[str(8+b+sum([(len(spec_list)-e) for e in range(1,a+1)]))+') L_'+str(a)+str(b) for a in range(0, len(spec_list)) for b in range(a, len(spec_list))],
                         str(ncoeff+8)+') L_slowest',
                         *[str(ncoeff+9+idx)+') D'+disso.replace('_','') for idx, disso in enumerate(alldissonum)]))
                 for res in tofile[direction]:
-                    output.writelines(("{:^11.1f} {:^+15.5f} {:^16.5f} {:^17.6E} {:^10.0f}"+(" {:^17.6E}")*(len(tofile[0][0])-5)+"\n").format(*res))
+                    output.writelines(("{:^11.1f} {:^+15.5f} {:^16.5f} {:^17.6E} {:^10.0f}"+(" {:s}".format(lij_digit_tag))*(len(tofile[0][0])-5)+"\n").format(*res))
             # Plotting transport coefficients in temperature-strain plane if non-zero strain
             if len(strain_list) > 1 and len(temperature_list) > 1 and (not np.all(Lij[direction] == 0)):
                 pp = PdfPages(dir + 'TempStrain_{}.pdf'.format(direction))
@@ -1164,7 +1184,7 @@ def numrun(myinput: str, stream_log: bool=True):
     # Stop measuring execution time and print elapsed time
     stop_time = tm.time()
     logger.info("Execution time: {:.3f} s.".format(stop_time-start_time))
-    logger.info("Peak memory usage: {:.3f} MB (or kB on MAC)".format(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1e3))  # peak memory usage
+    logger.info("Peak memory usage: {:.3f} MB.".format(process_for_memory_tracking.memory_info()[0] * 1e-6))  # peak memory usage
 
     # END CODE-----------------------------------
 
