@@ -31,7 +31,7 @@ import sys
 import logging
 import datetime
 import copy
-import resource
+import psutil
 from itertools import compress, product
 from shutil import copyfile
 
@@ -41,6 +41,7 @@ if len(sys.argv) != 2:
 
 sys.setrecursionlimit(kp.recursionlimit)  # for Pickle, else it causes error to save important data
 start_time = tm.time() # Start measuring execution time
+process_for_memory_tracking = psutil.Process(os.getpid()) # Save process id for memory usage tracking
 
 # Get input file from first argument (#1)
 myinput = sys.argv[1]
@@ -938,7 +939,7 @@ pickle.dump([Tcoords, Tsparse, Tdiag, L0matrix, Klambda, z_function,
 # Stop measuring execution time and print elapsed time
 stop_time = tm.time()
 logger.info("Execution time: {:.3f} s.".format(stop_time - start_time))
-logger.info("Peak memory usage: {:.3f} MB (or kB on MAC)".format(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e3))  # peak memory usage
+logger.info("Peak memory usage: {:.3f} MB.".format(process_for_memory_tracking.memory_info()[0]*1e-6))  # peak memory usage
 
 if input_dataset['runnum'] is not None:
     if os.path.exists(input_dataset['runnum'][0]):
