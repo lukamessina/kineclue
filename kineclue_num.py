@@ -33,10 +33,10 @@ import copy
 import sys
 import logging
 import datetime
-import psutil
 import warnings as warn
 from scipy import sparse
 from shutil import copyfile
+from psutil import Process
 from itertools import permutations, product
 from sympy.tensor.array import Array
 from kinepy import tol, change_base, flat_list, are_equal_arrays, evalinput, trans_and_check_unicity, rotate_matrix, \
@@ -52,7 +52,7 @@ def numrun(myinput: str, stream_log: bool=True):
 
     sys.setrecursionlimit(recursionlimit) # for Pickle, else it causes error to save important data
     start_time = tm.time() # Start measuring execution time
-    process_for_memory_tracking = psutil.Process(os.getpid())  # Save process id for memory usage tracking
+    process_for_memory_tracking = Process(os.getpid())  # Save process id for memory usage tracking
     np.set_printoptions(precision=15)
 
     # Reading input file

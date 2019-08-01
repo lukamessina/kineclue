@@ -31,9 +31,9 @@ import sys
 import logging
 import datetime
 import copy
-import psutil
 from itertools import compress, product
 from shutil import copyfile
+from psutil import Process
 
 # Check for correct number of arguments
 if len(sys.argv) != 2:
@@ -41,7 +41,7 @@ if len(sys.argv) != 2:
 
 sys.setrecursionlimit(kp.recursionlimit)  # for Pickle, else it causes error to save important data
 start_time = tm.time() # Start measuring execution time
-process_for_memory_tracking = psutil.Process(os.getpid()) # Save process id for memory usage tracking
+process_for_memory_tracking = Process(os.getpid()) # Save process id for memory usage tracking
 
 # Get input file from first argument (#1)
 myinput = sys.argv[1]
