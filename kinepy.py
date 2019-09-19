@@ -2129,7 +2129,7 @@ def print_license_notice() -> None:
                      "This is free software, and you are welcome to redistribute it\n" \
                      "under certain conditions; see the license terms for details.\n" \
                      "You are required to cite the following paper when using KineCluE or part of KineCluE:\n" \
-                     "T. Schuler, L. Messina and M. Nastar, Computer Physics Communications, xx (2018) [doi: xxxxxxxx]"
+                     "T. Schuler, L. Messina and M. Nastar, Computational Materials Science (2019) [doi: https://doi.org/10.1016.j.commatsci.2019.109191]"
     logger.info(license_notice)
 
 
