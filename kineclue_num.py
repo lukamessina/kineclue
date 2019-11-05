@@ -1099,7 +1099,7 @@ def numrun(myinput: str, stream_log: bool=True):
                                 warn.simplefilter("ignore")
                                 tofile[direction][k] = tofile[direction][k][:-(len(alldissonum)+1)]+[Lij[direction][0,0],
                                                         np.divide(Lij[direction][0,0], tofile[direction][k][-1]),
-                                                        np.sqrt(Lij[direction][0,0]/tofile[direction][k][5])]+tofile[direction][k][len(tofile[direction][k])-len(alldissonum):]
+                                                        np.sqrt(2*Lij[direction][0,0]/tofile[direction][k][5])]+tofile[direction][k][len(tofile[direction][k])-len(alldissonum):]
                         k+=1
 
         #print output file
