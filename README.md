@@ -9,7 +9,7 @@ This program comes with ABSOLUTELY NO WARRANTY; for details, see the license ter
 This is free software, and you are welcome to redistribute it under certain conditions.
 See the LGPL license terms for details (COPYING and COPYING.LESSER files).
 You are required to cite the following paper when using KineCluE or part of KineCluE.
-T. Schuler, L. Messina and M. Nastar, Computational Materials Science (2019) [doi: https://doi.org/10.1016.j.commatsci.2019.109191]  
+T. Schuler, L. Messina and M. Nastar, Computational Materials Science (2019) [doi: https://doi.org/10.1016/j.commatsci.2019.109191]  
 
 Contact information
 -------------------
