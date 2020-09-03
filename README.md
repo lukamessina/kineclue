@@ -14,7 +14,7 @@ T. Schuler, L. Messina and M. Nastar, Computational Materials Science (2019) [do
 Contact information
 -------------------
 thomas.schuler -at- cea.fr
-messina -at- kth.se
+luca.messina -at- cea.fr
 maylise.nastar -at- cea.fr
 
 Quick start instructions (detailed information in the KineCluE_1.0_User_Manual):
