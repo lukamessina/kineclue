@@ -19,7 +19,7 @@ maylise.nastar -at- cea.fr
 
 Quick start instructions (detailed information in the KineCluE_1.0_User_Manual):
 ------------------------
-You will need a working version of Python 3.6 (along with some modules, see KineCluE_1.0_User_Manual).
+You will need a working version of Python 3.6 (along with some modules, see file KineCluE_1_0_Input_documentation.pdf).
 If you do not have Python 3.6 installed on your computer, the Anaconda package is the easiest to get it along with the required modules.
 Edit the first line of both 'kineclue_main.py' and 'kineclue_num.py' files and indicate the path to your Python 3.6 executable.
 The code is divided in two parts: the analytical part (kineclue_main.py) which must be ran first and the numerical part (kineclue_num.py) which is ran afterwards.
