@@ -1661,7 +1661,7 @@ def dataset_to_defects(dataset: dict, crystal: Crystal, symop_list: list) -> lis
     for i in range(n_defects):
         sublattice = np.array([evalinput(e) for e in dataset['uniquepos'][i * 4 + 2:i * 4 + 5]], dtype=float)
         sublattice_nod = np.array([evalinputd0(e) for e in dataset['uniquepos'][i * 4 + 2:i * 4 + 5]], dtype=float)
-        if dataset['uniquepos'][i * 4 + 1] is 'o':  # convert positions to supercell base if necessary
+        if dataset['uniquepos'][i * 4 + 1] == 'o':  # convert positions to supercell base if necessary
             sublattice = change_base(arr=sublattice, crystal=crystal)
             sublattice_nod = change_base(arr=sublattice_nod, crystal=crystal)
         sublattice = apply_pbc(vec=sublattice)  # apply boundary conditions
