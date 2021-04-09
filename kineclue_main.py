@@ -218,7 +218,7 @@ if strain_flag:
     input_dataset['strain'][1:10] = [kp.evalinputS(i) for i in input_dataset['strain'][1:10]]
     strain_matrix = np.transpose(np.array([input_dataset['strain'][1:4], input_dataset['strain'][4:7],
                                            input_dataset['strain'][7:10]]))  # (strain vectors are in column)
-    if input_dataset['strain'][0] is 'o':  # Convert strain to supercell base
+    if input_dataset['strain'][0] == 'o':  # Convert strain to supercell base
         strain_matrix = kp.change_base(arr=strain_matrix, crystal=crystal, matrix=True)
     # Apply strain to crystal vectors
     strcrystal.set_strain(strain_matrix)
@@ -244,7 +244,7 @@ else:
     logger.info("!! Setting default CPG direction as [1,0,0] in supercell basis. Might not be optimal (CPG keyword not found)")
     cpg_input = ['s', '1', '0', '0']  # Default CPG direction: 1st crystal direction
 cpg = np.array([kp.evalinput(i) for i in cpg_input[1:4]], dtype=float)
-if cpg_input[0] is 's':  # If CPG is given in the supercell base, switch to orthonormal to make normalization
+if cpg_input[0] == 's':  # If CPG is given in the supercell base, switch to orthonormal to make normalization
     cpg = kp.change_base(arr=cpg, crystal=strcrystal, inv=True)
 cpg /= np.linalg.norm(cpg)  # Normalization in the orthonormal base
 Ndirs = 1 # number of directions in which the flux is computed
@@ -252,7 +252,7 @@ diffusion_dir = [cpg.copy()]  # this is a list of three items, each being a diff
 logger.info('CPG direction (supercell, cartesian) [{:6.3f} {:6.3f} {:6.3f}] ; [{:6.3f} {:6.3f} {:6.3f}]'.format(*kp.change_base(arr=cpg, crystal=crystal), *diffusion_dir[0]))
 if input_dataset['normal'] is not None:
     dir1 = np.array(input_dataset['normal'][1:4], dtype=float)
-    if input_dataset['normal'][0] is 's': # If NORMAL is given in the supercell base, switch to orthonormal to make normalization
+    if input_dataset['normal'][0] == 's': # If NORMAL is given in the supercell base, switch to orthonormal to make normalization
         dir1 = kp.change_base(arr=dir1, crystal=strcrystal, inv=True)
     dir1 /= np.linalg.norm(dir1)  # Normalization in the orthonormal base
     dir2 = np.cross(cpg, dir1)
